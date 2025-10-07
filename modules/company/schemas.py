@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 class Company(BaseModel):
     id: int
-    name: str
+    nome: str
 
 class CompanyCreate(BaseModel):
-    name: str
+    nome: str
