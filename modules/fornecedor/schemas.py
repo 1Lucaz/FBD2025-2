@@ -8,7 +8,8 @@ class Fornecedor(BaseModel):
     status : str
 
 class FornecedorCreate(BaseModel):
+    empresa_id: int
     nome: str
     cnpj: str
     status: str
-    empresa_id: int
+

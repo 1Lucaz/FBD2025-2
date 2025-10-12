@@ -1,31 +1,30 @@
 from core.db import DataBase
-from modules.empresa.schemas import EmpresaCreate
-
 
 class EmpresaRepository:
-    QUERY_EMPRESAS = "SELECT id, name, cnpj, status FROM empresas ORDER BY name"
-    QUERY_EMPRESA_ID = "SELECT id, name, cnpj, status FROM empresas WHERE id = %s"
-    QUERY_CREATE_EMPRESA = 'INSERT INTO empresas (name, cnpj, status) VALUES (%s, %s, %s) RETURNING id, name, cnpj, status;'
+    QUERY_CREATE = "INSERT INTO empresa (nome, cnpj, status) VALUES (%s, %s, %s) RETURNING id;"
+    QUERY_LIST = "SELECT id, nome, cnpj, status FROM empresa ORDER BY id;"
+    QUERY_GET_BY_ID = "SELECT id, nome, cnpj, status FROM empresa WHERE id = %s;"
+    QUERY_GET_BY_CNPJ = "SELECT id FROM empresa WHERE cnpj = %s;"
 
-    def get_all(self):
+    def save(self, empresa):
         db = DataBase()
-        empresas = db.execute(self.QUERY_EMPRESAS)
-        results = []
-        for empresa in empresas:
-            results.append({"id": empresa[0], "name": empresa[1], "cnpj": empresa[2], "status": empresa[3]})
-        return results
-
-    def save(self, empresa: EmpresaCreate):
-        db = DataBase()
-        empresa_data = (empresa.name, empresa.cnpj, empresa.status)
-        result = db.commit(self.QUERY_CREATE_EMPRESA, empresa_data)
+        
+        result = db.execute_commit(self.QUERY_CREATE, (empresa.nome, empresa.cnpj, empresa.status), returning=True)
         if result:
-            return {"id": result[0], "name": result[1], "cnpj": result[2], "status": result[3]}
-        return {}
 
-    def get_id(self, id: int):
+            if isinstance(result, tuple) or isinstance(result, list):
+                return {"id": result[0], "nome": empresa.nome, "cnpj": empresa.cnpj, "status": empresa.status}
+
+        return {"id": None, "nome": empresa.nome, "cnpj": empresa.cnpj, "status": empresa.status}
+
+    def list_all(self):
         db = DataBase()
-        empresa = db.execute(self.QUERY_EMPRESA_ID, (id,), many=False)
-        if empresa:
-            return {"id": empresa[0], "name": empresa[1], "cnpj": empresa[2], "status": empresa[3]}
-        return {}
+        return db.fetchall(self.QUERY_LIST)
+
+    def get_by_id(self, id):
+        db = DataBase()
+        return db.fetchone(self.QUERY_GET_BY_ID, (id,))
+
+    def get_by_cnpj(self, cnpj):
+        db = DataBase()
+        return db.fetchone(self.QUERY_GET_BY_CNPJ, (cnpj,))

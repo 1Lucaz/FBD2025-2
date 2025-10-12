@@ -25,6 +25,7 @@ import psycopg2
 
 
 import psycopg2
+from psycopg2.extras import RealDictCursor
 
 from core import settings
 
@@ -48,20 +49,43 @@ class DataBase:
             port="5432"
         )
 
-    def execute(self, sql, many=True):
-        cursor = self.conn.cursor()
-        cursor.execute(sql)
-        result = cursor.fetchall() if many else cursor.fetchone()
-        self.conn.close()
-        cursor.close()
-        return result
+    def fetchone(self, sql: str, params: tuple = None):
+        cur = self.conn.cursor(cursor_factory=RealDictCursor)
+        try:
+            cur.execute(sql, params)
+            row = cur.fetchone()
+            return dict(row) if row else None
+        finally:
+            cur.close()
+            self.conn.close()
 
-    def commit(self, sql):
-        cursor = self.conn.cursor()
-        cursor.execute(sql)
-        self.conn.commit()
-        result = cursor.fetchone()
-        self.conn.close()
-        cursor.close()
-        return result
+    def fetchall(self, sql: str, params: tuple = None):
+        cur = self.conn.cursor(cursor_factory=RealDictCursor)
+        try:
+            cur.execute(sql, params)
+            rows = cur.fetchall()
+            return [dict(r) for r in rows]
+        finally:
+            cur.close()
+            self.conn.close()
+
+    def execute_commit(self, sql: str, params: tuple = None, returning: bool = False):
+        cur = self.conn.cursor()
+        try:
+            cur.execute(sql, params)
+            if returning:
+                try:
+                    result = cur.fetchone()
+                except Exception:
+                    result = None
+            else:
+                result = None
+            self.conn.commit()
+            return result
+        except Exception:
+            self.conn.rollback()
+            raise
+        finally:
+            cur.close()
+            self.conn.close()
 
