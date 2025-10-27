@@ -8,7 +8,7 @@ class FornecedorRepository:
 
     def save(self, fornecedor):
         db = DataBase()
-        result = db.execute_commit(self.QUERY_CREATE,
+        result = db.commit(self.QUERY_CREATE,
                                    (fornecedor.nome, fornecedor.cnpj, fornecedor.status, fornecedor.empresa_id),
                                    returning=True)
         if result:

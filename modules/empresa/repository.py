@@ -9,7 +9,7 @@ class EmpresaRepository:
     def save(self, empresa):
         db = DataBase()
         
-        result = db.execute_commit(self.QUERY_CREATE, (empresa.nome, empresa.cnpj, empresa.status), returning=True)
+        result = db.commit(self.QUERY_CREATE, (empresa.nome, empresa.cnpj, empresa.status), returning=True)
         if result:
 
             if isinstance(result, tuple) or isinstance(result, list):

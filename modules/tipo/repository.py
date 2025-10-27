@@ -8,7 +8,7 @@ class TipoRepository:
 
     def save(self, tipo):
         db = DataBase()
-        result = db.execute_commit(self.QUERY_CREATE, (tipo.nome, tipo.cod_tipo, tipo.empresa_id), returning=True)
+        result = db.commit(self.QUERY_CREATE, (tipo.nome, tipo.cod_tipo, tipo.empresa_id), returning=True)
         if result:
             return {"id": result[0], "nome": tipo.nome, "cod_tipo": tipo.cod_tipo, "empresa_id": tipo.empresa_id}
         return {"id": None, "nome": tipo.nome, "cod_tipo": tipo.cod_tipo, "empresa_id": tipo.empresa_id}
