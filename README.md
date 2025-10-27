@@ -50,7 +50,7 @@ CREATE DATABASE sistema_estoque_aula;
    - **Porta:** 5432
    - **Usuário:** postgres
    - **Senha:** postgres
-   - **Database:** sistema_estoque_aula
+   - **Database:** postgres
 
 4. Ajuste essas configurações conforme necessário no arquivo `core/settings.py`
 
