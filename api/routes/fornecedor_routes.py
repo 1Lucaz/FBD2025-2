@@ -8,11 +8,11 @@ router = APIRouter(prefix="/fornecedor", tags=["fornecedor"])
 
 service = FornecedorService()
 
-@router.post("/criar_fornecedores", response_model=Fornecedor, status_code=HTTPStatus.CREATED)
+@router.post("/", response_model=Fornecedor, status_code=HTTPStatus.CREATED)
 def create_fornecedor(payload: FornecedorCreate):
     return service.create_fornecedor(payload)
 
-@router.get("/listar_fornecedores", response_model=list[Fornecedor])
+@router.get("/", response_model=list[Fornecedor])
 def list_fornecedores():
     return service.list_fornecedores()
 
