@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from modules.fornecedor.repository import FornecedorRepository
 from modules.fornecedor.schemas import FornecedorCreate
 from fastapi import HTTPException
@@ -24,5 +26,5 @@ class FornecedorService:
     def get_fornecedor_by_id(self, id: int):
         fornecedor = self.repo.get_by_id(id)
         if not fornecedor:
-            raise HTTPException(status_code=404, detail="Fornecedor não encontrado")
+            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Fornecedor não encontrado")
         return fornecedor

@@ -2,11 +2,11 @@ from pydantic import BaseModel
 
 class Empresa(BaseModel):
     id: int
-    name: str
+    nome: str
     cnpj: str
     status : str
 
 class EmpresaCreate(BaseModel):
-    name: str
+    nome: str
     cnpj: str
     status: str

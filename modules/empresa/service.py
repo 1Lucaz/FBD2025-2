@@ -7,11 +7,10 @@ class EmpresaService:
         self.repo = EmpresaRepository()
 
     def create_empresa(self, dados: EmpresaCreate):
-        # validação simples
+
         if not dados.nome or not dados.cnpj or not dados.status:
             raise HTTPException(status_code=400, detail="Campos 'nome', 'cnpj' e 'status' são obrigatórios")
 
-        # checar cnpj único (global)
         existing = self.repo.get_by_cnpj(dados.cnpj)
         if existing:
             raise HTTPException(status_code=409, detail="CNPJ da empresa já cadastrado")

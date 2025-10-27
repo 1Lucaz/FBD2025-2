@@ -29,7 +29,6 @@ from psycopg2.extras import RealDictCursor
 
 from core import settings
 
-
 class DataBase:
     def __init__(self):
         self.conn = psycopg2.connect(
@@ -40,52 +39,32 @@ class DataBase:
             port=settings.DB_PORT
         )
 
-    def _get_conn(self):
-        self.conn = psycopg2.connect(
-            host="localhost",
-            database="sistema_estoque_aula",
-            user="postgres",
-            password="kernel@",
-            port="5432"
-        )
+    def close(self):
+        if self.conn and not self.conn.closed:
+            self.conn.close()
 
     def fetchone(self, sql: str, params: tuple = None):
-        cur = self.conn.cursor(cursor_factory=RealDictCursor)
-        try:
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(sql, params)
-            row = cur.fetchone()
-            return dict(row) if row else None
-        finally:
-            cur.close()
-            self.conn.close()
+            return cur.fetchone()
 
     def fetchall(self, sql: str, params: tuple = None):
-        cur = self.conn.cursor(cursor_factory=RealDictCursor)
-        try:
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(sql, params)
-            rows = cur.fetchall()
-            return [dict(r) for r in rows]
-        finally:
-            cur.close()
-            self.conn.close()
+            return cur.fetchall()
 
-    def execute_commit(self, sql: str, params: tuple = None, returning: bool = False):
-        cur = self.conn.cursor()
-        try:
+    def commit(self, sql: str, params: tuple = None, returning: bool = False):
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(sql, params)
+            result = None
             if returning:
-                try:
-                    result = cur.fetchone()
-                except Exception:
-                    result = None
-            else:
-                result = None
+                result = cur.fetchone()
             self.conn.commit()
             return result
-        except Exception:
-            self.conn.rollback()
-            raise
-        finally:
-            cur.close()
-            self.conn.close()
 
+    def get_db():
+        db = DataBase()
+        try:
+            yield db
+        finally:
+            db.close()

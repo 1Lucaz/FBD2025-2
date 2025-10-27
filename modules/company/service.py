@@ -8,7 +8,6 @@ class CompanyService:
         return repository.get_all()
 
     def create_company(self, company: schemas.CompanyCreate):
-        # VALIDAR OS CAMPOS DO CREATE AQUI
         repository = CompanyRepository()
         return repository.save(company)
 

@@ -8,7 +8,9 @@ class FornecedorRepository:
 
     def save(self, fornecedor):
         db = DataBase()
-        result = db.execute_commit(self.QUERY_CREATE, (fornecedor.nome, fornecedor.cnpj, fornecedor.status, fornecedor.empresa_id), returning=True)
+        result = db.execute_commit(self.QUERY_CREATE,
+                                   (fornecedor.nome, fornecedor.cnpj, fornecedor.status, fornecedor.empresa_id),
+                                   returning=True)
         if result:
             return {"id": result[0], "nome": fornecedor.nome, "cnpj": fornecedor.cnpj, "status": fornecedor.status, "empresa_id": fornecedor.empresa_id}
         return {"id": None, "nome": fornecedor.nome, "cnpj": fornecedor.cnpj, "status": fornecedor.status, "empresa_id": fornecedor.empresa_id}
