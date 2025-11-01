@@ -9,4 +9,4 @@ class TipoBase(BaseModel):
 class TipoCreate(TipoBase):
     nome: str
     cod_tipo : str
-    empresa_id : str
+    empresa_id : int

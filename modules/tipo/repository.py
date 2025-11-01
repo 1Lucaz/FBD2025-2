@@ -8,19 +8,36 @@ class TipoRepository:
 
     def save(self, tipo):
         db = DataBase()
-        result = db.commit(self.QUERY_CREATE, (tipo.nome, tipo.cod_tipo, tipo.empresa_id), returning=True)
-        if result:
-            return {"id": result[0], "nome": tipo.nome, "cod_tipo": tipo.cod_tipo, "empresa_id": tipo.empresa_id}
-        return {"id": None, "nome": tipo.nome, "cod_tipo": tipo.cod_tipo, "empresa_id": tipo.empresa_id}
+        try:
+            result = db.commit(self.QUERY_CREATE, (tipo.nome, tipo.cod_tipo, tipo.empresa_id), returning=True)
+            if result and isinstance(result, dict) and "id" in result:
+                return {
+                    "id": result["id"],
+                    "nome": tipo.nome,
+                    "cod_tipo": tipo.cod_tipo,
+                    "empresa_id": tipo.empresa_id
+                }
+            raise Exception("Falha ao inserir tipo: retorno inesperado do banco.")
+        finally:
+            db.close()
 
     def list_all(self):
         db = DataBase()
-        return db.fetchall(self.QUERY_LIST)
+        try:
+            return db.fetchall(self.QUERY_LIST)
+        finally:
+            db.close()
 
     def get_by_id(self, id):
         db = DataBase()
-        return db.fetchone(self.QUERY_GET_BY_ID, (id,))
+        try:
+            return db.fetchone(self.QUERY_GET_BY_ID, (id,))
+        finally:
+            db.close()
 
     def get_by_cod_empresa(self, empresa_id, cod_tipo):
         db = DataBase()
-        return db.fetchone(self.QUERY_GET_BY_COD_EMPRESA, (empresa_id, cod_tipo))
+        try:
+            return db.fetchone(self.QUERY_GET_BY_COD_EMPRESA, (empresa_id, cod_tipo))
+        finally:
+            db.close()
