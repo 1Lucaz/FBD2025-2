@@ -1,36 +1,39 @@
---SELECT * FROM company WHERE status = 'ATIVO' ;
+Aqui está o script adaptado para usar os nomes das tabelas e colunas do seu novo schema (como `empresa` em vez de `company`, `fornecedor` em vez de `supplier`, `nome` em vez de `name` e `empresa_id` em vez de `company_id`).
 
--- SELECT supplier.name as supplier, company.name as company
---     FROM supplier, company
---     WHERE supplier.company_id = company.id;
+```sql
+--SELECT * FROM empresa WHERE status = 'ATIVO' ;
 
--- SELECT * FROM (SELECT supplier.name as supplier, company.name as company FROM supplier
---     LEFT JOIN company
---         ON supplier.company_id = company.id) as SupplierCompany;
+-- SELECT fornecedor.nome as supplier, empresa.nome as company
+--     FROM fornecedor, empresa
+--     WHERE fornecedor.empresa_id = empresa.id;
+
+-- SELECT * FROM (SELECT fornecedor.nome as supplier, empresa.nome as company FROM fornecedor
+--     LEFT JOIN empresa
+--         ON fornecedor.empresa_id = empresa.id) as SupplierCompany;
 --
--- SELECT * FROM company as cp INNER JOIN supplier as sp
---     ON cp.id = sp.company_id
+-- SELECT * FROM empresa as cp INNER JOIN fornecedor as sp
+--     ON cp.id = sp.empresa_id
 --         WHERE cp.status = 'ATIVO' AND sp.status = 'ATIVO'
 --         LIMIT 3
 --         OFFSET 6;
 --
--- SELECT cp.name as empresa,
---        (SELECT count(*) FROM supplier as sp
---             WHERE sp.company_id = cp.id)
---     FROM company as cp;
+-- SELECT cp.nome as empresa,
+--        (SELECT count(*) FROM fornecedor as sp
+--             WHERE sp.empresa_id = cp.id)
+--     FROM empresa as cp;
 --
 
 SELECT
-    cp.name,
+    cp.nome,
     COUNT(sp.id) AS total_fornecedores,
     COUNT(DISTINCT tp.id) AS total_tipos_produtos
-FROM company cp
-LEFT JOIN supplier sp ON sp.company_id = cp.id
-INNER JOIN type_product tp ON tp.company_id = cp.id
+FROM empresa cp
+LEFT JOIN fornecedor sp ON sp.empresa_id = cp.id
+INNER JOIN type_product tp ON tp.empresa_id = cp.id
 GROUP BY cp.id
 ORDER BY total_fornecedores ;
 --
--- INSERT INTO type_product (name, cod, company_id)
+-- INSERT INTO type_product (nome, cod, empresa_id)
 --     VALUES ('Bota', 2, 2)
 
 -- SELECT * FROM type_product
@@ -39,9 +42,8 @@ SELECT
     cp.*,
     COUNT(DISTINCT sp.id) AS total_fornecedores,
     COUNT(DISTINCT tp.id) AS total_tipos_produtos
-FROM company cp
-LEFT JOIN supplier sp ON sp.company_id = cp.id
-INNER JOIN type_product tp ON tp.company_id = cp.id
+FROM empresa cp
+LEFT JOIN fornecedor sp ON sp.empresa_id = cp.id
+INNER JOIN type_product tp ON tp.empresa_id = cp.id
 GROUP BY cp.id
 ORDER BY total_fornecedores ;
-
