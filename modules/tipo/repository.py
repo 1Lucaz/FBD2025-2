@@ -9,11 +9,11 @@ class TipoRepository:
     def save(self, tipo):
         db = DataBase()
         try:
-            result = db.commit(self.QUERY_CREATE, (tipo.nome, tipo.cod_tipo, tipo.empresa_id), returning=True)
+            result = db.commit(self.QUERY_CREATE, (tipo.name, tipo.cod_tipo, tipo.empresa_id), returning=True)
             if result and isinstance(result, dict) and "id" in result:
                 return {
                     "id": result["id"],
-                    "nome": tipo.nome,
+                    "nome": tipo.name,
                     "cod_tipo": tipo.cod_tipo,
                     "empresa_id": tipo.empresa_id
                 }

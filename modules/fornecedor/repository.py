@@ -11,13 +11,13 @@ class FornecedorRepository:
         try:
             result = db.commit(
                 self.QUERY_CREATE,
-                (fornecedor.nome, fornecedor.cnpj, fornecedor.status, fornecedor.empresa_id),
+                (fornecedor.name, fornecedor.cnpj, fornecedor.status, fornecedor.empresa_id),
                 returning=True
             )
             if result and isinstance(result, dict) and "id" in result:
                 return {
                     "id": result["id"],
-                    "nome": fornecedor.nome,
+                    "nome": fornecedor.name,
                     "cnpj": fornecedor.cnpj,
                     "status": fornecedor.status,
                     "empresa_id": fornecedor.empresa_id

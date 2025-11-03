@@ -9,11 +9,11 @@ class EmpresaRepository:
     def save(self, empresa):
         db = DataBase()
         try:
-            result = db.commit(self.QUERY_CREATE, (empresa.nome, empresa.cnpj, empresa.status), returning=True)
+            result = db.commit(self.QUERY_CREATE, (empresa.name, empresa.cnpj, empresa.status), returning=True)
             if result and 'id' in result:
                 return {
                     "id": result["id"],
-                    "nome": empresa.nome,
+                    "nome": empresa.name,
                     "cnpj": empresa.cnpj,
                     "status": empresa.status
                 }
