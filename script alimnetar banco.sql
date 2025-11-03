@@ -1,19 +1,18 @@
-
 -- ============================================
 -- Remover tabelas existentes (se houver)
 -- ============================================
-DROP TABLE IF EXISTS supplier CASCADE;
+DROP TABLE IF EXISTS fornecedor CASCADE;
 DROP TABLE IF EXISTS type_product CASCADE;
-DROP TABLE IF EXISTS company CASCADE;
+DROP TABLE IF EXISTS empresa CASCADE;
 
 -- ============================================
 -- Criação das Tabelas
 -- ============================================
 
--- Tabela Company
-CREATE TABLE company (
+-- Tabela Empresa
+CREATE TABLE empresa (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    nome VARCHAR(255) NOT NULL,
     cnpj VARCHAR(18) UNIQUE NOT NULL,
     status VARCHAR(20) NOT NULL CHECK (status IN ('ATIVO', 'INATIVO', 'SUSPENSO'))
 );
@@ -21,27 +20,52 @@ CREATE TABLE company (
 -- Tabela Type Product
 CREATE TABLE type_product (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    nome VARCHAR(255) NOT NULL,
     cod VARCHAR(50) UNIQUE NOT NULL,
-    company_id INTEGER NOT NULL,
-    CONSTRAINT fk_type_product_company FOREIGN KEY (company_id) REFERENCES company(id) ON DELETE CASCADE
+    empresa_id INTEGER NOT NULL,
+    CONSTRAINT fk_type_product_empresa FOREIGN KEY (empresa_id) REFERENCES empresa(id) ON DELETE CASCADE
 );
 
--- Tabela Supplier
-CREATE TABLE supplier (
+-- Tabela Fornecedor
+CREATE TABLE fornecedor (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    nome VARCHAR(255) NOT NULL,
     cnpj VARCHAR(18) UNIQUE NOT NULL,
     status VARCHAR(20) NOT NULL CHECK (status IN ('ATIVO', 'INATIVO', 'SUSPENSO')),
-    company_id INTEGER NOT NULL,
-    CONSTRAINT fk_supplier_company FOREIGN KEY (company_id) REFERENCES company(id) ON DELETE CASCADE
+    empresa_id INTEGER NOT NULL,
+    CONSTRAINT fk_fornecedor_empresa FOREIGN KEY (empresa_id) REFERENCES empresa(id) ON DELETE CASCADE
+);
+
+-- Tabela Produto
+CREATE TABLE produto (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    preco NUMERIC(10,2) NOT NULL CHECK (preco >= 0),
+    quantidade INTEGER NOT NULL DEFAULT 0 CHECK (quantidade >= 0),
+    type_product_id INTEGER NOT NULL,
+    empresa_id INTEGER NOT NULL,
+    CONSTRAINT fk_produto_type_product FOREIGN KEY (type_product_id)
+        REFERENCES type_product(id) ON DELETE CASCADE,
+    CONSTRAINT fk_produto_empresa FOREIGN KEY (empresa_id)
+        REFERENCES empresa(id) ON DELETE CASCADE
+);
+
+-- Tabela Estoque
+
+CREATE TABLE estoque (
+    id SERIAL PRIMARY KEY,
+    produto_id INTEGER NOT NULL,        -- FK para PRODUTO
+    quantidade INTEGER NOT NULL CHECK (quantidade >= 0),
+    data_atualizacao TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT fk_estoque_produto FOREIGN KEY (produto_id)
+        REFERENCES produto(id) ON DELETE CASCADE
 );
 
 -- ============================================
--- Inserção de Dados - Companies (30 registros)
+-- Inserção de Dados - Empresas (30 registros)
 -- ============================================
 
-INSERT INTO company (name, cnpj, status) VALUES
+INSERT INTO empresa (nome, cnpj, status) VALUES
 ('Tech Solutions Ltda', '12.345.678/0001-90', 'ATIVO'),
 ('Comercial Brasil S.A', '23.456.789/0001-01', 'ATIVO'),
 ('Distribuidora Norte', '34.567.890/0001-12', 'ATIVO'),
@@ -77,7 +101,7 @@ INSERT INTO company (name, cnpj, status) VALUES
 -- Inserção de Dados - Type Product (50 registros)
 -- ============================================
 
-INSERT INTO type_product (name, cod, company_id) VALUES
+INSERT INTO type_product (nome, cod, empresa_id) VALUES
 ('Notebook', 'NB-001', 1),
 ('Desktop', 'DK-002', 1),
 ('Monitor', 'MN-003', 1),
@@ -89,7 +113,7 @@ INSERT INTO type_product (name, cod, company_id) VALUES
 ('Fone de Ouvido', 'FN-003', 5),
 ('Camiseta', 'CM-001', 6),
 ('Calça Jeans', 'CJ-002', 6),
-('Cimento', 'CM-001', 7),
+('Cimento', 'CM-002', 7),
 ('Tijolo', 'TJ-002', 7),
 ('Tinta', 'TN-003', 7),
 ('Filtro de Óleo', 'FO-001', 8),
@@ -130,10 +154,10 @@ INSERT INTO type_product (name, cod, company_id) VALUES
 ('Pão Francês', 'PF-001', 25);
 
 -- ============================================
--- Inserção de Dados - Suppliers (45 registros)
+-- Inserção de Dados - Fornecedores (45 registros)
 -- ============================================
 
-INSERT INTO supplier (name, cnpj, status, company_id) VALUES
+INSERT INTO fornecedor (nome, cnpj, status, empresa_id) VALUES
 ('Fornecedor Tech Alpha', '10.111.222/0001-33', 'ATIVO', 1),
 ('Distribuidora Digital', '20.222.333/0001-44', 'ATIVO', 1),
 ('Atacado Brasil', '30.333.444/0001-55', 'ATIVO', 2),
@@ -184,28 +208,28 @@ INSERT INTO supplier (name, cnpj, status, company_id) VALUES
 -- Verificação dos Dados Inseridos
 -- ============================================
 
-SELECT 'Total de Companies:' AS info, COUNT(*) AS total FROM company;
+SELECT 'Total de Empresas:' AS info, COUNT(*) AS total FROM empresa;
 SELECT 'Total de Type Products:' AS info, COUNT(*) AS total FROM type_product;
-SELECT 'Total de Suppliers:' AS info, COUNT(*) AS total FROM supplier;
+SELECT 'Total de Fornecedores:' AS info, COUNT(*) AS total FROM fornecedor;
 
 -- ============================================
 -- Consultas de Exemplo
 -- ============================================
 
--- Companies ativas
-SELECT * FROM company WHERE status = 'ATIVO';
+-- Empresas ativas
+SELECT * FROM empresa WHERE status = 'ATIVO';
 
--- Tipos de produtos por company
-SELECT c.name AS company_name, tp.name AS product_type, tp.cod
+-- Tipos de produtos por empresa
+SELECT e.nome AS empresa_nome, tp.nome AS product_type, tp.cod
 FROM type_product tp
-JOIN company c ON tp.company_id = c.id
-ORDER BY c.name, tp.name;
+JOIN empresa e ON tp.empresa_id = e.id
+ORDER BY e.nome, tp.nome;
 
--- Suppliers por company
-SELECT c.name AS company_name, s.name AS supplier_name, s.cnpj, s.status
-FROM supplier s
-JOIN company c ON s.company_id = c.id
-ORDER BY c.name, s.name;
+-- Fornecedores por empresa
+SELECT e.name AS empresa_name, f.name AS fornecedor_name, f.cnpj, f.status
+FROM fornecedor f
+JOIN empresa e ON f.empresa_id = e.id
+ORDER BY e.name, f.name;
 
 -- ============================================
 -- FIM DO SCRIPT
